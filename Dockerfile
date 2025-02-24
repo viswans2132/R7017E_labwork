@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-# Install packages
+# Install APT packages
 RUN apt update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \ 
     curl \
@@ -32,14 +32,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-desktop
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-tf-transformations ros-humble-tf2-geometry-msgs
 RUN DEBIAN_FRONTEND=noninteractive apt install -y python3-colcon-common-extensions
 
+# Change the Working Directory
 WORKDIR /ros_ws
 
 # Install Gazebo
 RUN curl -sSL http://get.gazebosim.org | sh
 RUN DEBIAN_FRONTEND=noninteractive apt-get install ros-humble-gazebo-ros-pkgs -y
 
+# Install ROS packages for controlling the Gazebo environment
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-xacro
-
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-control-msgs 
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-backward-ros 
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-realtime-tools 
@@ -50,13 +51,18 @@ RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-gazebo-ros2-control
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-joint-state-broadcaster
 RUN DEBIAN_FRONTEND=noninteractive apt install -y ros-humble-joint-trajectory-controller
 
-
+# Install Text Editor
 RUN wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/sublimehq-archive.gpg > /dev/null
 RUN echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
 RUN apt-get update
 
+# Install RUST and Cargo
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN echo 'source $HOME/.cargo/env' >> ~/.bashrc
 
-RUN pip3 install --upgrade scipy cvxpy nano
+# Install optimizer and other tools
+RUN pip3 install --upgrade opengen
 RUN pip3 install --upgrade transforms3d vcstool
+# RUN DEBIAN_FRONTEND=noninteractive apt install -y liblcm-dev
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc 
